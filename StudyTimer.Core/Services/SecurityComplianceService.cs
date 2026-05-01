@@ -50,6 +50,7 @@ public sealed class SecurityComplianceService(StudyDataStore store, IDateTimePro
             LockedUsers = lockedUsers,
             HighRiskUsers = highRiskUsers,
             StudentUsersWithoutLink = studentUsersWithoutLink,
+            DuplicateUsernameGroups = duplicateUsernames,
             HasAdminUser = hasAdmin,
             Findings = findings
         };

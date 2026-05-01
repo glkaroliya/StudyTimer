@@ -68,11 +68,13 @@ public sealed class AuthService(StudyDataStore store, IDateTimeProvider? dateTim
     {
         Guard.NotNullOrWhiteSpace(username, nameof(username));
         Guard.NotNullOrWhiteSpace(password, nameof(password));
+        var normalizedUsername = username.Trim();
+        Guard.NotNullOrWhiteSpace(normalizedUsername, nameof(username));
         ValidatePasswordPolicy(password, username);
 
-        if (store.Users.Any(u => string.Equals(u.Username, username, StringComparison.OrdinalIgnoreCase)))
+        if (store.Users.Any(u => string.Equals(u.Username, normalizedUsername, StringComparison.OrdinalIgnoreCase)))
         {
-            throw new ValidationException($"Username '{username}' is already in use.");
+            throw new ValidationException($"Username '{normalizedUsername}' is already in use.");
         }
 
         if (role is UserRole.Student && studentId is not null && store.Users.Any(x => x.StudentId == studentId))
@@ -84,7 +86,7 @@ public sealed class AuthService(StudyDataStore store, IDateTimeProvider? dateTim
         var user = new User
         {
             Id = store.NextUserId(),
-            Username = username.Trim(),
+            Username = normalizedUsername,
             PasswordHash = hash,
             PasswordSalt = salt,
             Role = role,
