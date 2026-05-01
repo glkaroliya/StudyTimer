@@ -6,7 +6,7 @@ namespace StudyTimer.Core.Services;
 
 public sealed class TimetableService(StudyDataStore store)
 {
-    public TimetableSlot Create(int studentId, int subjectId, DateOnly date, TimeOnly startTime, int durationMinutes, string activityDescription)
+    public TimetableSlot Create(int studentId, int subjectId, DateOnly date, TimeOnly startTime, int durationMinutes, string activityDescription, int? actorUserId = null)
     {
         ValidateDependencies(studentId, subjectId);
         Guard.Range(durationMinutes, 1, 240, nameof(durationMinutes));
@@ -23,16 +23,25 @@ public sealed class TimetableService(StudyDataStore store)
             StartTime = startTime,
             DurationMinutes = durationMinutes,
             ActivityDescription = activityDescription.Trim(),
-            Completed = false
+            Completed = false,
+            IsRescheduled = false,
+            RescheduledToSlotId = null,
+            ReminderSentAtUtc = null
         };
 
         store.TimetableSlots.Add(slot);
+        AddAuditLog(actorUserId, "TimetableSlotCreated", $"SlotId={slot.Id};StudentId={studentId};Date={date:yyyy-MM-dd};Start={startTime:HH\\:mm}");
         return slot;
     }
 
-    public TimetableSlot Update(int id, int subjectId, DateOnly date, TimeOnly startTime, int durationMinutes, string activityDescription)
+    public TimetableSlot Update(int id, int subjectId, DateOnly date, TimeOnly startTime, int durationMinutes, string activityDescription, int? actorUserId = null)
     {
         var slot = GetById(id);
+        if (slot.IsRescheduled)
+        {
+            throw new ValidationException("Cannot update a slot that has already been rescheduled.");
+        }
+
         ValidateDependencies(slot.StudentId, subjectId);
         Guard.Range(durationMinutes, 1, 240, nameof(durationMinutes));
         Guard.NotNullOrWhiteSpace(activityDescription, nameof(activityDescription));
@@ -48,18 +57,23 @@ public sealed class TimetableService(StudyDataStore store)
             StartTime = startTime,
             DurationMinutes = durationMinutes,
             ActivityDescription = activityDescription.Trim(),
-            Completed = slot.Completed
+            Completed = slot.Completed,
+            IsRescheduled = slot.IsRescheduled,
+            RescheduledToSlotId = slot.RescheduledToSlotId,
+            ReminderSentAtUtc = slot.ReminderSentAtUtc
         };
 
         var index = store.TimetableSlots.FindIndex(x => x.Id == id);
         store.TimetableSlots[index] = updated;
+        AddAuditLog(actorUserId, "TimetableSlotUpdated", $"SlotId={id};Date={date:yyyy-MM-dd};Start={startTime:HH\\:mm}");
         return updated;
     }
 
-    public void Delete(int id)
+    public void Delete(int id, int? actorUserId = null)
     {
         var slot = GetById(id);
         store.TimetableSlots.Remove(slot);
+        AddAuditLog(actorUserId, "TimetableSlotDeleted", $"SlotId={id}");
     }
 
     public TimetableSlot GetById(int id)
@@ -88,10 +102,43 @@ public sealed class TimetableService(StudyDataStore store)
             query = query.Where(x => x.Completed == completed.Value);
         }
 
-        return query.OrderBy(x => x.Date).ThenBy(x => x.StartTime).ToList();
+        return query
+            .Where(x => !x.IsRescheduled)
+            .OrderBy(x => x.Date)
+            .ThenBy(x => x.StartTime)
+            .ToList();
     }
 
-    public TimetableSlot MarkCompleted(int id, bool completed = true)
+    public TimetableSlot MarkCompleted(int id, bool completed = true, int? actorUserId = null)
+    {
+        var slot = GetById(id);
+        if (slot.IsRescheduled)
+        {
+            throw new ValidationException("Cannot complete a slot that has already been rescheduled.");
+        }
+
+        var updated = new TimetableSlot
+        {
+            Id = slot.Id,
+            StudentId = slot.StudentId,
+            SubjectId = slot.SubjectId,
+            Date = slot.Date,
+            StartTime = slot.StartTime,
+            DurationMinutes = slot.DurationMinutes,
+            ActivityDescription = slot.ActivityDescription,
+            Completed = completed,
+            IsRescheduled = slot.IsRescheduled,
+            RescheduledToSlotId = slot.RescheduledToSlotId,
+            ReminderSentAtUtc = slot.ReminderSentAtUtc
+        };
+
+        var index = store.TimetableSlots.FindIndex(x => x.Id == id);
+        store.TimetableSlots[index] = updated;
+        AddAuditLog(actorUserId, "TimetableSlotCompletionChanged", $"SlotId={id};Completed={completed}");
+        return updated;
+    }
+
+    public TimetableSlot MarkReminderSent(int id, DateTimeOffset sentAtUtc)
     {
         var slot = GetById(id);
         var updated = new TimetableSlot
@@ -103,12 +150,64 @@ public sealed class TimetableService(StudyDataStore store)
             StartTime = slot.StartTime,
             DurationMinutes = slot.DurationMinutes,
             ActivityDescription = slot.ActivityDescription,
-            Completed = completed
+            Completed = slot.Completed,
+            IsRescheduled = slot.IsRescheduled,
+            RescheduledToSlotId = slot.RescheduledToSlotId,
+            ReminderSentAtUtc = sentAtUtc
         };
 
         var index = store.TimetableSlots.FindIndex(x => x.Id == id);
         store.TimetableSlots[index] = updated;
         return updated;
+    }
+
+    public TimetableSlot Reschedule(int id, DateOnly newDate, TimeOnly newStartTime, int? newDurationMinutes = null, string? newActivityDescription = null, int? actorUserId = null)
+    {
+        var source = GetById(id);
+        if (source.Completed)
+        {
+            throw new ValidationException("Cannot reschedule a completed slot.");
+        }
+
+        if (source.IsRescheduled)
+        {
+            throw new ValidationException("Slot is already rescheduled.");
+        }
+
+        var duration = newDurationMinutes ?? source.DurationMinutes;
+        var activity = newActivityDescription ?? source.ActivityDescription;
+        Guard.Range(duration, 1, 240, nameof(newDurationMinutes));
+        Guard.NotNullOrWhiteSpace(activity, nameof(newActivityDescription));
+
+        var newSlot = Create(source.StudentId, source.SubjectId, newDate, newStartTime, duration, activity, actorUserId);
+        var sourceIndex = store.TimetableSlots.FindIndex(x => x.Id == source.Id);
+        store.TimetableSlots[sourceIndex] = new TimetableSlot
+        {
+            Id = source.Id,
+            StudentId = source.StudentId,
+            SubjectId = source.SubjectId,
+            Date = source.Date,
+            StartTime = source.StartTime,
+            DurationMinutes = source.DurationMinutes,
+            ActivityDescription = source.ActivityDescription,
+            Completed = source.Completed,
+            IsRescheduled = true,
+            RescheduledToSlotId = newSlot.Id,
+            ReminderSentAtUtc = source.ReminderSentAtUtc
+        };
+
+        AddAuditLog(actorUserId, "TimetableSlotRescheduled", $"SourceSlotId={source.Id};NewSlotId={newSlot.Id}");
+        return newSlot;
+    }
+
+    public IReadOnlyList<TimetableSlot> GetMissedSessions(int studentId, DateOnly asOfDate)
+    {
+        Guard.Positive(studentId, nameof(studentId));
+        return store.TimetableSlots
+            .Where(x => x.StudentId == studentId && x.Date < asOfDate && !x.Completed && !x.IsRescheduled)
+            .OrderBy(x => x.Date)
+            .ThenBy(x => x.StartTime)
+            .ToList();
     }
 
     private void ValidateDependencies(int studentId, int subjectId)
@@ -133,7 +232,7 @@ public sealed class TimetableService(StudyDataStore store)
         var newEnd = newStart.AddMinutes(durationMinutes);
 
         var hasOverlap = store.TimetableSlots
-            .Where(x => x.StudentId == studentId && x.Date == date && (!currentId.HasValue || x.Id != currentId.Value))
+            .Where(x => x.StudentId == studentId && x.Date == date && !x.IsRescheduled && (!currentId.HasValue || x.Id != currentId.Value))
             .Any(existing =>
             {
                 var existingStart = existing.Date.ToDateTime(existing.StartTime);
@@ -145,5 +244,23 @@ public sealed class TimetableService(StudyDataStore store)
         {
             throw new ValidationException("Timetable slot overlaps with an existing slot for this student.");
         }
+    }
+
+    private void AddAuditLog(int? actorUserId, string action, string details)
+    {
+        if (!actorUserId.HasValue)
+        {
+            return;
+        }
+
+        store.AuditLogs.Add(new AuditLogEntry
+        {
+            Id = store.NextAuditLogId(),
+            ActorUserId = actorUserId,
+            Action = action,
+            EntityType = nameof(TimetableSlot),
+            Details = details,
+            CreatedAtUtc = DateTimeOffset.UtcNow
+        });
     }
 }

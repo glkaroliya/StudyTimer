@@ -11,7 +11,7 @@ public sealed class TimerService(StudyDataStore store)
         Guard.Positive(studentId, nameof(studentId));
 
         var slots = store.TimetableSlots
-            .Where(x => x.StudentId == studentId && x.Date == date)
+            .Where(x => x.StudentId == studentId && x.Date == date && !x.IsRescheduled)
             .OrderBy(x => x.StartTime)
             .ToList();
 
@@ -58,14 +58,17 @@ public sealed class TimerService(StudyDataStore store)
             StartTime = currentSlot.StartTime,
             DurationMinutes = currentSlot.DurationMinutes,
             ActivityDescription = currentSlot.ActivityDescription,
-            Completed = true
+            Completed = true,
+            IsRescheduled = currentSlot.IsRescheduled,
+            RescheduledToSlotId = currentSlot.RescheduledToSlotId,
+            ReminderSentAtUtc = currentSlot.ReminderSentAtUtc
         };
 
         var currentIndex = store.TimetableSlots.FindIndex(x => x.Id == currentSlot.Id);
         store.TimetableSlots[currentIndex] = updatedCurrent;
 
         var nextSlot = store.TimetableSlots
-            .Where(x => x.StudentId == currentState.StudentId && x.Date == currentState.Date && !x.Completed)
+            .Where(x => x.StudentId == currentState.StudentId && x.Date == currentState.Date && !x.Completed && !x.IsRescheduled)
             .OrderBy(x => x.StartTime)
             .FirstOrDefault();
 

@@ -1,6 +1,6 @@
 # StudyTimer
 
-StudyTimer Phase 1 core implementation delivered as a professional .NET 8 solution with test coverage.
+StudyTimer core implementation delivered as a professional .NET 8 solution with test coverage.
 
 ## Delivered Phase 1 scope
 
@@ -13,6 +13,17 @@ StudyTimer Phase 1 core implementation delivered as a professional .NET 8 soluti
 - Timer workflow service (countdown tick, auto-next slot, completion alert flag)
 - Printable timetable export and simple PDF byte generation
 - Domain-level validation and typed exceptions (`Validation`, `NotFound`, `Unauthorized`)
+
+## Delivered Phase 2 scope
+
+- Child-friendly theme preferences (light/dark + color variants) per student
+- Weekly/monthly progress analytics with chart-ready data points
+- Missed-session tracking and slot reschedule support
+- Enhanced daily and weekly printable/PDF timetable templates
+- Reminder notifications before upcoming study slots
+- JSON backup and restore for full in-memory data state
+- Audit log support for admin actions (manual logging + actor-aware service mutations)
+- Stability and UX polish updates (reschedule-aware dashboard/timer/search behavior)
 
 ## Solution layout
 

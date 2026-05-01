@@ -58,6 +58,7 @@ public class TimetableAndDashboardTests
 
         Assert.Equal(1, dashboard.TotalCount);
         Assert.Equal(1, dashboard.CompletedCount);
+        Assert.Equal(0, dashboard.MissedCount);
         Assert.Single(dashboard.ReviewNotes);
     }
 }

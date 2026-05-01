@@ -6,6 +6,7 @@ public sealed class StudentDashboard
     public required DateOnly Date { get; init; }
     public required IReadOnlyList<TimetableSlot> Slots { get; init; }
     public required int CompletedCount { get; init; }
+    public required int MissedCount { get; init; }
     public required int TotalCount { get; init; }
     public required IReadOnlyList<ReviewNote> ReviewNotes { get; init; }
 }

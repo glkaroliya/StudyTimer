@@ -6,7 +6,7 @@ namespace StudyTimer.Core.Services;
 
 public sealed class SubjectService(StudyDataStore store)
 {
-    public Subject Create(string name, string? description = null)
+    public Subject Create(string name, string? description = null, int? actorUserId = null)
     {
         Guard.NotNullOrWhiteSpace(name, nameof(name));
         EnsureUniqueName(name);
@@ -19,10 +19,11 @@ public sealed class SubjectService(StudyDataStore store)
         };
 
         store.Subjects.Add(subject);
+        AddAuditLog(actorUserId, "SubjectCreated", $"SubjectId={subject.Id};Name={subject.Name}");
         return subject;
     }
 
-    public Subject Update(int id, string name, string? description = null)
+    public Subject Update(int id, string name, string? description = null, int? actorUserId = null)
     {
         var subject = GetById(id);
         Guard.NotNullOrWhiteSpace(name, nameof(name));
@@ -30,14 +31,16 @@ public sealed class SubjectService(StudyDataStore store)
 
         subject.Name = name.Trim();
         subject.Description = description?.Trim() ?? string.Empty;
+        AddAuditLog(actorUserId, "SubjectUpdated", $"SubjectId={subject.Id};Name={subject.Name}");
         return subject;
     }
 
-    public void Delete(int id)
+    public void Delete(int id, int? actorUserId = null)
     {
         var subject = GetById(id);
         store.Subjects.Remove(subject);
         store.TimetableSlots.RemoveAll(x => x.SubjectId == id);
+        AddAuditLog(actorUserId, "SubjectDeleted", $"SubjectId={id}");
     }
 
     public Subject GetById(int id)
@@ -71,5 +74,23 @@ public sealed class SubjectService(StudyDataStore store)
         {
             throw new ValidationException($"Subject '{normalized}' already exists.");
         }
+    }
+
+    private void AddAuditLog(int? actorUserId, string action, string details)
+    {
+        if (!actorUserId.HasValue)
+        {
+            return;
+        }
+
+        store.AuditLogs.Add(new AuditLogEntry
+        {
+            Id = store.NextAuditLogId(),
+            ActorUserId = actorUserId,
+            Action = action,
+            EntityType = nameof(Subject),
+            Details = details,
+            CreatedAtUtc = DateTimeOffset.UtcNow
+        });
     }
 }

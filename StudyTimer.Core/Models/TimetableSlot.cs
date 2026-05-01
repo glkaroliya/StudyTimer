@@ -10,4 +10,7 @@ public sealed class TimetableSlot
     public required int DurationMinutes { get; init; }
     public required string ActivityDescription { get; init; }
     public bool Completed { get; set; }
+    public bool IsRescheduled { get; init; }
+    public int? RescheduledToSlotId { get; init; }
+    public DateTimeOffset? ReminderSentAtUtc { get; init; }
 }

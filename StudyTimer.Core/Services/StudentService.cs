@@ -6,7 +6,7 @@ namespace StudyTimer.Core.Services;
 
 public sealed class StudentService(StudyDataStore store)
 {
-    public Student Create(string name, int grade, bool isActive = true)
+    public Student Create(string name, int grade, bool isActive = true, int? actorUserId = null)
     {
         Guard.NotNullOrWhiteSpace(name, nameof(name));
         Guard.Range(grade, 1, 12, nameof(grade));
@@ -20,10 +20,11 @@ public sealed class StudentService(StudyDataStore store)
         };
 
         store.Students.Add(student);
+        AddAuditLog(actorUserId, "StudentCreated", $"StudentId={student.Id};Name={student.Name}");
         return student;
     }
 
-    public Student Update(int id, string name, int grade, bool isActive)
+    public Student Update(int id, string name, int grade, bool isActive, int? actorUserId = null)
     {
         var student = GetById(id);
         Guard.NotNullOrWhiteSpace(name, nameof(name));
@@ -33,16 +34,19 @@ public sealed class StudentService(StudyDataStore store)
         student.Grade = grade;
         student.IsActive = isActive;
 
+        AddAuditLog(actorUserId, "StudentUpdated", $"StudentId={student.Id};Name={student.Name};Grade={student.Grade};IsActive={student.IsActive}");
         return student;
     }
 
-    public void Delete(int id)
+    public void Delete(int id, int? actorUserId = null)
     {
         var student = GetById(id);
         store.Students.Remove(student);
         store.TimetableSlots.RemoveAll(x => x.StudentId == id);
         store.ReviewNotes.RemoveAll(x => x.StudentId == id);
         store.Users.RemoveAll(x => x.StudentId == id);
+        store.ThemePreferences.RemoveAll(x => x.StudentId == id);
+        AddAuditLog(actorUserId, "StudentDeleted", $"StudentId={id}");
     }
 
     public Student GetById(int id)
@@ -63,5 +67,23 @@ public sealed class StudentService(StudyDataStore store)
             .Where(s => s.Name.Contains(query, StringComparison.OrdinalIgnoreCase) || s.Grade.ToString() == query)
             .OrderBy(s => s.Name)
             .ToList();
+    }
+
+    private void AddAuditLog(int? actorUserId, string action, string details)
+    {
+        if (!actorUserId.HasValue)
+        {
+            return;
+        }
+
+        store.AuditLogs.Add(new AuditLogEntry
+        {
+            Id = store.NextAuditLogId(),
+            ActorUserId = actorUserId,
+            Action = action,
+            EntityType = nameof(Student),
+            Details = details,
+            CreatedAtUtc = DateTimeOffset.UtcNow
+        });
     }
 }

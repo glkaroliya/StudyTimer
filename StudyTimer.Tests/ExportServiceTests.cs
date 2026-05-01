@@ -18,10 +18,14 @@ public class ExportServiceTests
 
         var text = export.GeneratePrintableText(student.Id, date);
         var pdf = export.GenerateSimplePdfBytes(student.Id, date);
+        var weeklyText = export.GenerateWeeklyPrintableText(student.Id, date);
+        var weeklyPdf = export.GenerateWeeklyPdfBytes(student.Id, date);
 
-        Assert.Contains("StudyTimer Timetable", text);
+        Assert.Contains("StudyTimer Daily Timetable", text);
         Assert.Contains("Sophia", text);
+        Assert.Contains("StudyTimer Weekly Timetable", weeklyText);
         Assert.NotEmpty(pdf);
+        Assert.NotEmpty(weeklyPdf);
         Assert.Equal('%', (char)pdf[0]);
     }
 }
