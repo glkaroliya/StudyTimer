@@ -51,7 +51,7 @@ public class TimetableAndDashboardTests
         var date = new DateOnly(2026, 5, 1);
 
         var slot = timetableService.Create(student.Id, subject.Id, date, new TimeOnly(8, 0), 20, "Vocabulary");
-        timetableService.MarkCompleted(slot.Id);
+        timetableService.MarkCompleted(slot.Id, true);
         reviewService.Add(student.Id, date, "Great focus today.");
 
         var dashboard = dashboardService.Get(student.Id, date);

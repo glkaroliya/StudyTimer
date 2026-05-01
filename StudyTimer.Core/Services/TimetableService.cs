@@ -94,8 +94,21 @@ public sealed class TimetableService(StudyDataStore store)
     public TimetableSlot MarkCompleted(int id, bool completed = true)
     {
         var slot = GetById(id);
-        slot.Completed = completed;
-        return slot;
+        var updated = new TimetableSlot
+        {
+            Id = slot.Id,
+            StudentId = slot.StudentId,
+            SubjectId = slot.SubjectId,
+            Date = slot.Date,
+            StartTime = slot.StartTime,
+            DurationMinutes = slot.DurationMinutes,
+            ActivityDescription = slot.ActivityDescription,
+            Completed = completed
+        };
+
+        var index = store.TimetableSlots.FindIndex(x => x.Id == id);
+        store.TimetableSlots[index] = updated;
+        return updated;
     }
 
     private void ValidateDependencies(int studentId, int subjectId)

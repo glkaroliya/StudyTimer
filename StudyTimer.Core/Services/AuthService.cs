@@ -26,8 +26,9 @@ public sealed class AuthService(StudyDataStore store)
     {
         Guard.NotNullOrWhiteSpace(username, nameof(username));
         Guard.NotNullOrWhiteSpace(password, nameof(password));
+        var normalizedUsername = username.Trim();
 
-        var user = store.Users.SingleOrDefault(u => string.Equals(u.Username, username, StringComparison.OrdinalIgnoreCase));
+        var user = store.Users.SingleOrDefault(u => string.Equals(u.Username, normalizedUsername, StringComparison.OrdinalIgnoreCase));
         if (user is null || !PasswordHasher.Verify(password, user.PasswordHash, user.PasswordSalt))
         {
             throw new UnauthorizedException("Invalid username or password.");
