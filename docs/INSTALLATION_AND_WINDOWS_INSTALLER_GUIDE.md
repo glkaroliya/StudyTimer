@@ -6,20 +6,32 @@ This guide explains how to:
 
 1. Set up the development environment
 2. Build and test StudyTimer
-3. Produce distributable binaries
-4. Create a Windows installer package professionally
+3. Run the WPF desktop app locally
+4. Publish distributable binaries
+5. Create a Windows installer package
 
 > Repository root used in this guide: `/home/runner/work/StudyTimer/StudyTimer`
 
 ---
 
-## 2) Prerequisites
+## 2) Current Solution Layout
+
+The solution currently contains:
+
+- `StudyTimer.Core` - production domain/services library
+- `StudyTimer.Tests` - xUnit test project
+- `StudyTimer.App` - WPF desktop executable (`net8.0-windows`)
+- `StudyTimer.slnx` - solution file
+
+---
+
+## 3) Prerequisites
 
 ### Required software
 
-- **Windows 10/11** (for installer creation and installer validation)
 - **.NET SDK 8.0**
 - **Git**
+- **Windows 10/11** (for running the WPF app and creating installers)
 - **Visual Studio 2022** (recommended) with:
   - .NET desktop development workload
   - Optional: MSIX Packaging Tools (if using MSIX flow)
@@ -33,7 +45,7 @@ git --version
 
 ---
 
-## 3) Clone and Prepare
+## 4) Clone and Prepare
 
 ```powershell
 cd C:\dev
@@ -41,7 +53,7 @@ git clone https://github.com/glkaroliya/StudyTimer.git
 cd StudyTimer
 ```
 
-If you are on the hosted runner, use:
+If you are on the hosted runner:
 
 ```bash
 cd /home/runner/work/StudyTimer/StudyTimer
@@ -49,9 +61,9 @@ cd /home/runner/work/StudyTimer/StudyTimer
 
 ---
 
-## 4) Build and Test (Baseline)
+## 5) Restore, Build, and Test
 
-Run these commands from the repository root:
+Run from repository root:
 
 ```bash
 dotnet restore StudyTimer.slnx
@@ -61,95 +73,82 @@ dotnet test StudyTimer.slnx
 
 Expected result:
 
-- Build succeeds with 0 errors
+- Build succeeds
 - All tests pass
 
----
-
-## 5) Understand Packaging Scope in This Repository
-
-Current solution contains:
-
-- `StudyTimer.Core` (class library)
-- `StudyTimer.Tests` (test project)
-
-A **Windows installer requires an executable app** (for example WPF/WinUI/Console host) that references `StudyTimer.Core`.
-
-So packaging is done in two stages:
-
-1. Build `StudyTimer.Core` (already in this repo)
-2. Build/package a Windows host app that depends on `StudyTimer.Core`
+> Note: `StudyTimer.App` targets `net8.0-windows` and includes `EnableWindowsTargeting=true` for compatibility with non-Windows build environments (such as Linux CI).
 
 ---
 
-## 6) Create a Windows Host App (One-Time)
+## 6) Run the Desktop App Locally
 
-If not already present, create a host application project (example: WPF):
+Run the WPF app:
 
-```powershell
-cd C:\dev\StudyTimer
-dotnet new wpf -n StudyTimer.App -f net8.0-windows
-dotnet sln StudyTimer.slnx add .\StudyTimer.App\StudyTimer.App.csproj
-dotnet add .\StudyTimer.App\StudyTimer.App.csproj reference .\StudyTimer.Core\StudyTimer.Core.csproj
+```bash
+dotnet run --project StudyTimer.App/StudyTimer.App.csproj
 ```
 
-Then implement minimal startup UI that uses services from `StudyTimer.Core`.
+### First login
+
+On first run, a default admin user is seeded automatically if no users exist:
+
+- Username: `admin`
+- Password: `Admin123`
+
+You can then sign in and use the full UI (Dashboard, Timetable, Timer, Progress, Settings, etc.).
 
 ---
 
 ## 7) Publish Release Binaries
 
-For x64 Windows:
+For Windows x64 self-contained publish:
 
 ```powershell
 cd C:\dev\StudyTimer
 dotnet publish .\StudyTimer.App\StudyTimer.App.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o .\artifacts\publish\win-x64
 ```
 
-Artifacts are produced in:
+Publish output:
 
 - `artifacts/publish/win-x64`
 
 ---
 
-## 8) Create a Professional Windows Installer (WiX v4 Recommended)
+## 8) Create a Windows Installer (WiX v4 Recommended)
 
-## 8.1 Install WiX v4 CLI
+### 8.1 Install WiX CLI
 
 ```powershell
 dotnet tool install --global wix
 wix --version
 ```
 
-## 8.2 Installer project structure
+### 8.2 Installer project structure
 
-Create directory:
+Create an installer directory and WiX source file:
 
 - `installer/`
-
-Create WiX source file:
-
 - `installer/StudyTimer.wxs`
 
-Define MSI metadata professionally:
-
-- Product Name: `StudyTimer`
-- Manufacturer: your organization name
-- Version: semantic version (e.g., `1.0.0`)
-- UpgradeCode: stable GUID (never change after first release)
-
-Install files from:
+Use published files from:
 
 - `artifacts/publish/win-x64`
 
-Include:
+Recommended installer metadata:
+
+- Product Name: `StudyTimer`
+- Manufacturer: your organization name
+- Version: semantic version (for example `1.0.0`)
+- UpgradeCode: stable GUID (keep constant after first release)
+
+Recommended installer behavior:
 
 - Start Menu shortcut
 - Desktop shortcut (optional)
-- Add/Remove Programs entry
-- Proper upgrade behavior (major upgrades)
+- Add/Remove Programs registration
+- Proper major upgrade handling
 
-## 8.3 Build MSI
+### 8.3 Build MSI
 
 ```powershell
 cd C:\dev\StudyTimer
@@ -164,18 +163,12 @@ Output:
 
 ## 9) Optional: MSIX Packaging Path
 
-If your organization requires Store-style deployment:
+If your organization requires Store/enterprise style deployment:
 
 - Create an MSIX Packaging Project in Visual Studio
 - Reference `StudyTimer.App`
-- Configure identity, publisher, versioning, capabilities
-- Build signed `.msix` package
-
-Choose MSIX when you need:
-
-- Enterprise deployment tooling
-- Cleaner uninstall/upgrade behavior
-- Sandboxed distribution policy
+- Configure identity, publisher, version, and capabilities
+- Build a signed `.msix` package
 
 ---
 
@@ -187,7 +180,7 @@ Before external distribution:
 2. Sign the installer (`.msi` or `.msix`)
 3. Timestamp the signature
 
-Unsigned installers reduce trust and can trigger SmartScreen warnings.
+Unsigned installers may trigger SmartScreen warnings.
 
 ---
 
@@ -196,10 +189,11 @@ Unsigned installers reduce trust and can trigger SmartScreen warnings.
 Validate on a clean Windows VM:
 
 - Fresh install succeeds
-- App launches from Start Menu
+- App launches from Start Menu shortcut
+- Login screen opens successfully
+- Default admin sign-in works on first run
 - Uninstall removes files and shortcuts
 - Reinstall/upgrade from previous version works
-- Application data migration behavior verified
 
 ---
 
@@ -207,36 +201,44 @@ Validate on a clean Windows VM:
 
 Automate release packaging in CI:
 
-1. Restore/build/test
-2. Publish host app binaries
-3. Build installer
-4. Sign installer (secure secret storage)
+1. Restore/build/test solution
+2. Publish `StudyTimer.App`
+3. Build installer (WiX/MSIX)
+4. Sign installer (using secure secret/certificate handling)
 5. Upload release artifacts
 
 Suggested release artifacts:
 
 - `StudyTimer-x64.msi`
-- checksums (`SHA256SUMS.txt`)
-- release notes
+- `SHA256SUMS.txt`
+- Release notes
 
 ---
 
 ## 13) Troubleshooting
 
-### Build succeeds but no installer possible
+### Build fails for `StudyTimer.App` on non-Windows machine
 
-Cause: no executable host project yet.  
-Fix: create `StudyTimer.App` and reference `StudyTimer.Core`.
+- Ensure .NET SDK 8 is installed
+- Ensure the project still has `EnableWindowsTargeting=true`
+- Run `dotnet restore` before `dotnet build`
 
-### Installer builds but app fails to start
+### App starts but login fails
 
-Cause: missing runtime dependencies or wrong publish mode.  
-Fix: use self-contained publish and verify required native dependencies.
+- Confirm credentials
+- On first run, use `admin` / `Admin123`
+- If repeated failed attempts occurred, wait for lockout window to expire
+
+### Installer builds but app fails to launch
+
+- Verify publish step used the intended runtime and output path
+- Rebuild publish artifacts, then rebuild installer
 
 ### Upgrade installs side-by-side
 
-Cause: incorrect MSI upgrade metadata.  
-Fix: keep stable `UpgradeCode`, increment version correctly, configure major upgrade behavior.
+- Verify MSI upgrade metadata
+- Keep stable `UpgradeCode`
+- Increment product version correctly and configure major upgrade behavior
 
 ---
 
@@ -244,8 +246,8 @@ Fix: keep stable `UpgradeCode`, increment version correctly, configure major upg
 
 Before shipping:
 
-- All tests pass on release commit
+- Build and tests pass on release commit
 - Installer is signed
 - Installer validated on clean machine
 - Upgrade path tested from previous version
-- User guide is updated for released version
+- User guide updated for released version
