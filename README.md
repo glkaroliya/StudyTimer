@@ -48,3 +48,8 @@ cd /home/runner/work/StudyTimer/StudyTimer
 dotnet build StudyTimer.slnx
 dotnet test StudyTimer.slnx
 ```
+
+## Documentation
+
+- `/home/runner/work/StudyTimer/StudyTimer/docs/INSTALLATION_AND_WINDOWS_INSTALLER_GUIDE.md` - full setup, build, and Windows installer packaging guide
+- `/home/runner/work/StudyTimer/StudyTimer/docs/USER_GUIDE.md` - user-facing usage guide and troubleshooting
