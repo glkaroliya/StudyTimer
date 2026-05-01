@@ -25,6 +25,16 @@ StudyTimer core implementation delivered as a professional .NET 8 solution with 
 - Audit log support for admin actions (manual logging + actor-aware service mutations)
 - Stability and UX polish updates (reschedule-aware dashboard/timer/search behavior)
 
+## Delivered Phase 3 scope
+
+- Gamification engine with streaks, points, and badge awards
+- Parent-facing progress summary domain model and printable/PDF export service
+- Accessibility preferences (font scaling, dyslexia-friendly mode, high contrast)
+- Focus mode preferences integrated into timer session state
+- Optional cloud sync readiness with snapshot pull/push and conflict detection
+- Localization support with multilingual message templates (English/Spanish/Hindi)
+- Security hardening (password policy + lockout flow) and compliance reporting checks
+
 ## Solution layout
 
 - `/home/runner/work/StudyTimer/StudyTimer/StudyTimer.Core` - production domain/services
