@@ -21,6 +21,7 @@ public sealed class TimerService(StudyDataStore store)
         }
 
         var current = slots.FirstOrDefault(x => !x.Completed) ?? slots[0];
+        var isFocusModeEnabled = store.FocusModePreferences.SingleOrDefault(x => x.StudentId == studentId)?.Enabled ?? false;
         return new TimerSessionState
         {
             StudentId = studentId,
@@ -28,7 +29,8 @@ public sealed class TimerService(StudyDataStore store)
             CurrentSlotId = current.Id,
             RemainingSeconds = current.DurationMinutes * 60,
             IsDayCompleted = slots.All(x => x.Completed),
-            ShouldPlayAlert = false
+            ShouldPlayAlert = false,
+            IsFocusModeEnabled = isFocusModeEnabled
         };
     }
 

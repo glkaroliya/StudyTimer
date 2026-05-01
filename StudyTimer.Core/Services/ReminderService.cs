@@ -26,7 +26,7 @@ public sealed class ReminderService(StudyDataStore store, IDateTimeProvider date
                 StudentId = x.Slot.StudentId,
                 ScheduledSlotStartUtc = new DateTimeOffset(x.StartUtc, TimeSpan.Zero),
                 ReminderTimeUtc = now,
-                Message = $"Upcoming session at {x.Slot.StartTime:HH\\:mm}: {x.Slot.ActivityDescription}"
+                Message = BuildUpcomingMessage(x.Slot)
             })
             .ToList();
     }
@@ -49,6 +49,20 @@ public sealed class ReminderService(StudyDataStore store, IDateTimeProvider date
             IsRescheduled = slot.IsRescheduled,
             RescheduledToSlotId = slot.RescheduledToSlotId,
             ReminderSentAtUtc = dateTimeProvider.UtcNow
+        };
+    }
+
+    private string BuildUpcomingMessage(TimetableSlot slot)
+    {
+        var language = store.LocalizationPreferences
+            .SingleOrDefault(x => x.StudentId == slot.StudentId)?
+            .Language ?? SupportedLanguage.English;
+
+        return language switch
+        {
+            SupportedLanguage.Spanish => $"Sesión próxima a las {slot.StartTime:HH\\:mm}: {slot.ActivityDescription}",
+            SupportedLanguage.Hindi => $"अगला अध्ययन सत्र {slot.StartTime:HH\\:mm} पर: {slot.ActivityDescription}",
+            _ => $"Upcoming session at {slot.StartTime:HH\\:mm}: {slot.ActivityDescription}"
         };
     }
 }

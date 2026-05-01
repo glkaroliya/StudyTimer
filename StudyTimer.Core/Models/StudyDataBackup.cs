@@ -14,5 +14,9 @@ public sealed class StudyDataBackup
     public required IReadOnlyList<TimetableSlot> TimetableSlots { get; init; }
     public required IReadOnlyList<ReviewNote> ReviewNotes { get; init; }
     public required IReadOnlyList<StudentThemePreference> ThemePreferences { get; init; }
+    public required IReadOnlyList<AccessibilityPreference> AccessibilityPreferences { get; init; }
+    public required IReadOnlyList<FocusModePreference> FocusModePreferences { get; init; }
+    public required IReadOnlyList<LocalizationPreference> LocalizationPreferences { get; init; }
+    public required IReadOnlyList<SyncDeviceState> SyncDeviceStates { get; init; }
     public required IReadOnlyList<AuditLogEntry> AuditLogs { get; init; }
 }

@@ -1,11 +1,15 @@
+using System.Security.Cryptography;
+using StudyTimer.Core.Abstractions;
 using StudyTimer.Core.Exceptions;
 using StudyTimer.Core.Models;
 using StudyTimer.Core.Utils;
 
 namespace StudyTimer.Core.Services;
 
-public sealed class AuthService(StudyDataStore store)
+public sealed class AuthService(StudyDataStore store, IDateTimeProvider? dateTimeProvider = null)
 {
+    private readonly IDateTimeProvider _dateTimeProvider = dateTimeProvider ?? new SystemDateTimeProvider();
+
     public User RegisterAdmin(string username, string password)
     {
         return Register(username, password, UserRole.Admin, null);
@@ -29,15 +33,34 @@ public sealed class AuthService(StudyDataStore store)
         var normalizedUsername = username.Trim();
 
         var user = store.Users.SingleOrDefault(u => string.Equals(u.Username, normalizedUsername, StringComparison.OrdinalIgnoreCase));
-        if (user is null || !PasswordHasher.Verify(password, user.PasswordHash, user.PasswordSalt))
+        if (user is null)
         {
             throw new UnauthorizedException("Invalid username or password.");
         }
 
+        if (user.LockedUntilUtc.HasValue && user.LockedUntilUtc.Value > _dateTimeProvider.UtcNow)
+        {
+            throw new UnauthorizedException("Account is temporarily locked due to failed login attempts.");
+        }
+
+        if (!PasswordHasher.Verify(password, user.PasswordHash, user.PasswordSalt))
+        {
+            user.FailedLoginAttempts++;
+            if (user.FailedLoginAttempts >= 5)
+            {
+                user.LockedUntilUtc = _dateTimeProvider.UtcNow.AddMinutes(15);
+            }
+
+            throw new UnauthorizedException("Invalid username or password.");
+        }
+
+        user.FailedLoginAttempts = 0;
+        user.LockedUntilUtc = null;
+
         return new AuthenticatedSession
         {
             User = user,
-            AccessToken = Convert.ToBase64String(Guid.NewGuid().ToByteArray())
+            AccessToken = GenerateAccessToken()
         };
     }
 
@@ -45,10 +68,7 @@ public sealed class AuthService(StudyDataStore store)
     {
         Guard.NotNullOrWhiteSpace(username, nameof(username));
         Guard.NotNullOrWhiteSpace(password, nameof(password));
-        if (password.Length < 8)
-        {
-            throw new ValidationException("Password must be at least 8 characters.");
-        }
+        ValidatePasswordPolicy(password, username);
 
         if (store.Users.Any(u => string.Equals(u.Username, username, StringComparison.OrdinalIgnoreCase)))
         {
@@ -68,10 +88,41 @@ public sealed class AuthService(StudyDataStore store)
             PasswordHash = hash,
             PasswordSalt = salt,
             Role = role,
-            StudentId = studentId
+            StudentId = studentId,
+            FailedLoginAttempts = 0,
+            LockedUntilUtc = null,
+            PasswordChangedAtUtc = _dateTimeProvider.UtcNow
         };
 
         store.Users.Add(user);
         return user;
+    }
+
+    private static string GenerateAccessToken()
+    {
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+    }
+
+    private static void ValidatePasswordPolicy(string password, string username)
+    {
+        if (password.Length < 8)
+        {
+            throw new ValidationException("Password must be at least 8 characters.");
+        }
+
+        if (password.Contains(' '))
+        {
+            throw new ValidationException("Password cannot contain spaces.");
+        }
+
+        if (!password.Any(char.IsUpper) || !password.Any(char.IsLower) || !password.Any(char.IsDigit))
+        {
+            throw new ValidationException("Password must include uppercase, lowercase, and numeric characters.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(username) && password.Contains(username.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            throw new ValidationException("Password cannot contain username.");
+        }
     }
 }

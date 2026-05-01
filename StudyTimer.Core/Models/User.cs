@@ -8,4 +8,7 @@ public sealed class User
     public required byte[] PasswordSalt { get; set; }
     public required UserRole Role { get; init; }
     public int? StudentId { get; init; }
+    public int FailedLoginAttempts { get; set; }
+    public DateTimeOffset? LockedUntilUtc { get; set; }
+    public DateTimeOffset PasswordChangedAtUtc { get; set; }
 }

@@ -8,4 +8,5 @@ public sealed record TimerSessionState
     public required int RemainingSeconds { get; init; }
     public required bool IsDayCompleted { get; init; }
     public required bool ShouldPlayAlert { get; init; }
+    public required bool IsFocusModeEnabled { get; init; }
 }

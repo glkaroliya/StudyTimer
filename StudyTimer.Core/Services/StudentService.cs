@@ -46,6 +46,10 @@ public sealed class StudentService(StudyDataStore store)
         store.ReviewNotes.RemoveAll(x => x.StudentId == id);
         store.Users.RemoveAll(x => x.StudentId == id);
         store.ThemePreferences.RemoveAll(x => x.StudentId == id);
+        store.AccessibilityPreferences.RemoveAll(x => x.StudentId == id);
+        store.FocusModePreferences.RemoveAll(x => x.StudentId == id);
+        store.LocalizationPreferences.RemoveAll(x => x.StudentId == id);
+        store.SyncDeviceStates.RemoveAll(x => x.StudentId == id);
         AddAuditLog(actorUserId, "StudentDeleted", $"StudentId={id}");
     }
 

@@ -17,6 +17,10 @@ public sealed class StudyDataStore
     public List<TimetableSlot> TimetableSlots { get; } = [];
     public List<ReviewNote> ReviewNotes { get; } = [];
     public List<StudentThemePreference> ThemePreferences { get; } = [];
+    public List<AccessibilityPreference> AccessibilityPreferences { get; } = [];
+    public List<FocusModePreference> FocusModePreferences { get; } = [];
+    public List<LocalizationPreference> LocalizationPreferences { get; } = [];
+    public List<SyncDeviceState> SyncDeviceStates { get; } = [];
     public List<AuditLogEntry> AuditLogs { get; } = [];
 
     public int NextUserId() => _nextUserId++;
@@ -42,6 +46,10 @@ public sealed class StudyDataStore
             TimetableSlots = TimetableSlots.ToList(),
             ReviewNotes = ReviewNotes.ToList(),
             ThemePreferences = ThemePreferences.ToList(),
+            AccessibilityPreferences = AccessibilityPreferences.ToList(),
+            FocusModePreferences = FocusModePreferences.ToList(),
+            LocalizationPreferences = LocalizationPreferences.ToList(),
+            SyncDeviceStates = SyncDeviceStates.ToList(),
             AuditLogs = AuditLogs.ToList()
         };
     }
@@ -61,6 +69,10 @@ public sealed class StudyDataStore
         Replace(TimetableSlots, backup.TimetableSlots);
         Replace(ReviewNotes, backup.ReviewNotes);
         Replace(ThemePreferences, backup.ThemePreferences);
+        Replace(AccessibilityPreferences, backup.AccessibilityPreferences);
+        Replace(FocusModePreferences, backup.FocusModePreferences);
+        Replace(LocalizationPreferences, backup.LocalizationPreferences);
+        Replace(SyncDeviceStates, backup.SyncDeviceStates);
         Replace(AuditLogs, backup.AuditLogs);
     }
 
