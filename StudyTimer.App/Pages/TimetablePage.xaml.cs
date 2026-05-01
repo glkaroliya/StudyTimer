@@ -49,7 +49,8 @@ public partial class TimetablePage : Page
             var date = DateOnly.FromDateTime(DpDate.SelectedDate.Value);
             var slots = ServiceLocator.TimetableService.Search(student.Id, date);
             var subjects = ServiceLocator.SubjectService.Search(null);
-            var rows = slots.Select(s => new TimetableRow(s, subjects.FirstOrDefault(sub => sub.Id == s.SubjectId)?.Name ?? s.SubjectId.ToString())).ToList();
+            var subjectsById = subjects.ToDictionary(s => s.Id, s => s.Name);
+            var rows = slots.Select(s => new TimetableRow(s, subjectsById.GetValueOrDefault(s.SubjectId) ?? s.SubjectId.ToString())).ToList();
             GridSlots.ItemsSource = rows;
         }
         catch (Exception ex) { MessageBox.Show(ex.Message); }

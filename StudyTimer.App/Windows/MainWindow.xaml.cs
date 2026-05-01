@@ -62,10 +62,13 @@ public partial class MainWindow : Window
             timerPage.StopTimer();
         }
         ServiceLocator.CurrentSession = null;
+        // Prevent auto-shutdown when last window closes during re-login flow
+        Application.Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
         Close();
         var login = new LoginWindow();
         if (login.ShowDialog() == true)
         {
+            Application.Current.ShutdownMode = ShutdownMode.OnLastWindowClose;
             var main = new MainWindow();
             main.Show();
         }

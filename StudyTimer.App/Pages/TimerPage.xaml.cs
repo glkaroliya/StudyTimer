@@ -114,7 +114,11 @@ public partial class TimerPage : Page
 
     public void StopTimer()
     {
-        _timer?.Stop();
-        _timer = null;
+        if (_timer != null)
+        {
+            _timer.Tick -= Timer_Tick;
+            _timer.Stop();
+            _timer = null;
+        }
     }
 }

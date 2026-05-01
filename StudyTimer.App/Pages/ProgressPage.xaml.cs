@@ -35,6 +35,20 @@ public partial class ProgressPage : Page
         }
     }
 
+    private (DateOnly start, DateOnly end) GetPeriodRange(DateOnly date)
+    {
+        if (CboPeriod.SelectedIndex == 0) // Weekly
+        {
+            var start = date.AddDays(-(int)date.DayOfWeek);
+            return (start, start.AddDays(6));
+        }
+        else // Monthly
+        {
+            var start = new DateOnly(date.Year, date.Month, 1);
+            return (start, start.AddMonths(1).AddDays(-1));
+        }
+    }
+
     private void BtnLoad_Click(object sender, RoutedEventArgs e)
     {
         if (CboStudents.SelectedItem is not Student student) { MessageBox.Show("Select a student."); return; }
@@ -114,17 +128,7 @@ public partial class ProgressPage : Page
         {
             var today = DateOnly.FromDateTime(DateTime.Today);
             var date = DateOnly.FromDateTime(DpPeriod.SelectedDate.Value);
-            DateOnly startDate, endDate;
-            if (CboPeriod.SelectedIndex == 0)
-            {
-                startDate = date.AddDays(-(int)date.DayOfWeek);
-                endDate = startDate.AddDays(6);
-            }
-            else
-            {
-                startDate = new DateOnly(date.Year, date.Month, 1);
-                endDate = startDate.AddMonths(1).AddDays(-1);
-            }
+            var (startDate, endDate) = GetPeriodRange(date);
             var text = ServiceLocator.ParentReportExportService.GeneratePrintableText(student.Id, startDate, endDate, today);
             TxtReport.Text = text;
             TxtReport.Visibility = Visibility.Visible;
@@ -140,17 +144,7 @@ public partial class ProgressPage : Page
         {
             var today = DateOnly.FromDateTime(DateTime.Today);
             var date = DateOnly.FromDateTime(DpPeriod.SelectedDate.Value);
-            DateOnly startDate, endDate;
-            if (CboPeriod.SelectedIndex == 0)
-            {
-                startDate = date.AddDays(-(int)date.DayOfWeek);
-                endDate = startDate.AddDays(6);
-            }
-            else
-            {
-                startDate = new DateOnly(date.Year, date.Month, 1);
-                endDate = startDate.AddMonths(1).AddDays(-1);
-            }
+            var (startDate, endDate) = GetPeriodRange(date);
             var bytes = ServiceLocator.ParentReportExportService.GeneratePdfBytes(student.Id, startDate, endDate, today);
             var dlg = new SaveFileDialog { Filter = "PDF files (*.pdf)|*.pdf", FileName = $"Report_{student.Name}.pdf" };
             if (dlg.ShowDialog() == true)
