@@ -1,0 +1,82 @@
+<Page x:Class="StudyTimer.App.Pages.DashboardPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Dashboard">
+    <ScrollViewer Padding="20">
+        <StackPanel>
+            <TextBlock Text="Dashboard" FontSize="22" FontWeight="Bold" Margin="0,0,0,12"/>
+
+            <StackPanel x:Name="PanelStudentSelector" Orientation="Horizontal" Margin="0,0,0,12" Visibility="Collapsed">
+                <TextBlock Text="Student:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox x:Name="CboStudents" Width="200" SelectionChanged="CboStudents_SelectionChanged"
+                          DisplayMemberPath="Name"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                <TextBlock Text="Date:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <DatePicker x:Name="DpDate" SelectedDateChanged="DpDate_Changed"/>
+            </StackPanel>
+
+            <UniformGrid Columns="3" Margin="0,0,0,16">
+                <Border Background="#E8F4FD" CornerRadius="8" Margin="4" Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="Completed" FontSize="12" Foreground="#666"/>
+                        <TextBlock x:Name="TxtCompleted" Text="0" FontSize="28" FontWeight="Bold" Foreground="#2D3A4A"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="#FFF3CD" CornerRadius="8" Margin="4" Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="Missed" FontSize="12" Foreground="#666"/>
+                        <TextBlock x:Name="TxtMissed" Text="0" FontSize="28" FontWeight="Bold" Foreground="#C0392B"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="#D5F5E3" CornerRadius="8" Margin="4" Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="Review Notes" FontSize="12" Foreground="#666"/>
+                        <TextBlock x:Name="TxtReviews" Text="0" FontSize="28" FontWeight="Bold" Foreground="#27AE60"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <Border Background="#F8F9FA" CornerRadius="8" Padding="16" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="Gamification" FontSize="16" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <TextBlock Text="🔥 Streak: " FontSize="13"/>
+                        <TextBlock x:Name="TxtStreak" FontSize="13" FontWeight="Bold"/>
+                        <TextBlock Text=" days" FontSize="13"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <TextBlock Text="⭐ Points: " FontSize="13"/>
+                        <TextBlock x:Name="TxtPoints" FontSize="13" FontWeight="Bold"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🏅 Badges: " FontSize="13"/>
+                        <TextBlock x:Name="TxtBadges" FontSize="13" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="Today's Slots" FontSize="16" FontWeight="Bold" Margin="0,0,0,8"/>
+            <DataGrid x:Name="GridSlots" AutoGenerateColumns="False" IsReadOnly="True" Height="200" Margin="0,0,0,16"
+                      CanUserAddRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Subject" Binding="{Binding SubjectId}" Width="80"/>
+                    <DataGridTextColumn Header="Start" Binding="{Binding StartTime, StringFormat=HH\\:mm}" Width="60"/>
+                    <DataGridTextColumn Header="Duration" Binding="{Binding DurationMinutes}" Width="70"/>
+                    <DataGridTextColumn Header="Activity" Binding="{Binding ActivityDescription}" Width="*"/>
+                    <DataGridTextColumn Header="Done" Binding="{Binding Completed}" Width="50"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <TextBlock Text="Upcoming Reminders" FontSize="16" FontWeight="Bold" Margin="0,0,0,8"/>
+            <ItemsControl x:Name="ListReminders">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Message}" Margin="0,2" FontSize="12" Foreground="#555"/>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

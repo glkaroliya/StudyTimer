@@ -1,0 +1,57 @@
+<Page x:Class="StudyTimer.App.Pages.ProgressPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Progress">
+    <ScrollViewer Padding="20">
+        <StackPanel>
+            <TextBlock Text="Progress Analytics" FontSize="22" FontWeight="Bold" Margin="0,0,0,12"/>
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                <TextBlock Text="Student:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <ComboBox x:Name="CboStudents" Width="160" DisplayMemberPath="Name"/>
+                <TextBlock Text="Period:" VerticalAlignment="Center" Margin="16,0,8,0"/>
+                <ComboBox x:Name="CboPeriod" Width="100" SelectedIndex="0">
+                    <ComboBoxItem Content="Weekly"/>
+                    <ComboBoxItem Content="Monthly"/>
+                </ComboBox>
+                <DatePicker x:Name="DpPeriod" Margin="8,0,0,0"/>
+                <Button Content="Load" Margin="8,0,0,0" Padding="12,4" Click="BtnLoad_Click" Background="#2D3A4A" Foreground="White"/>
+            </StackPanel>
+
+            <UniformGrid Columns="3" Margin="0,0,0,16">
+                <Border Background="#E8F4FD" CornerRadius="8" Margin="4" Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="Total Sessions" FontSize="12" Foreground="#666"/>
+                        <TextBlock x:Name="TxtTotal" Text="-" FontSize="24" FontWeight="Bold"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="#D5F5E3" CornerRadius="8" Margin="4" Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="Completed" FontSize="12" Foreground="#666"/>
+                        <TextBlock x:Name="TxtCompleted" Text="-" FontSize="24" FontWeight="Bold" Foreground="#27AE60"/>
+                    </StackPanel>
+                </Border>
+                <Border Background="#FDEDEC" CornerRadius="8" Margin="4" Padding="16">
+                    <StackPanel>
+                        <TextBlock Text="Missed" FontSize="12" Foreground="#666"/>
+                        <TextBlock x:Name="TxtMissed" Text="-" FontSize="24" FontWeight="Bold" Foreground="#C0392B"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <TextBlock Text="Chart" FontSize="16" FontWeight="Bold" Margin="0,0,0,8"/>
+            <Border Background="#F8F9FA" CornerRadius="8" Padding="16" Height="200" Margin="0,0,0,16">
+                <Canvas x:Name="ChartCanvas"/>
+            </Border>
+
+            <StackPanel Orientation="Horizontal">
+                <Button Content="Export Printable Report" Margin="0,0,8,0" Padding="12,6" Click="BtnPrintable_Click"/>
+                <Button Content="Export PDF" Padding="12,6" Click="BtnPdf_Click"/>
+            </StackPanel>
+
+            <TextBox x:Name="TxtReport" Margin="0,12,0,0" Height="200" IsReadOnly="True"
+                     VerticalScrollBarVisibility="Auto" FontFamily="Consolas" FontSize="12"
+                     Visibility="Collapsed"/>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
