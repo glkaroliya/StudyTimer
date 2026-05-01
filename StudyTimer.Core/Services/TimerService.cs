@@ -49,7 +49,20 @@ public sealed class TimerService(StudyDataStore store)
             return currentState with { RemainingSeconds = remaining, ShouldPlayAlert = false };
         }
 
-        currentSlot.Completed = true;
+        var updatedCurrent = new TimetableSlot
+        {
+            Id = currentSlot.Id,
+            StudentId = currentSlot.StudentId,
+            SubjectId = currentSlot.SubjectId,
+            Date = currentSlot.Date,
+            StartTime = currentSlot.StartTime,
+            DurationMinutes = currentSlot.DurationMinutes,
+            ActivityDescription = currentSlot.ActivityDescription,
+            Completed = true
+        };
+
+        var currentIndex = store.TimetableSlots.FindIndex(x => x.Id == currentSlot.Id);
+        store.TimetableSlots[currentIndex] = updatedCurrent;
 
         var nextSlot = store.TimetableSlots
             .Where(x => x.StudentId == currentState.StudentId && x.Date == currentState.Date && !x.Completed)
