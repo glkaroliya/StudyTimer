@@ -1,0 +1,48 @@
+<Page x:Class="StudyTimer.App.Pages.SubjectsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Subjects">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Subjects" FontSize="22" FontWeight="Bold" Margin="0,0,0,12"/>
+
+        <DataGrid Grid.Row="1" x:Name="GridSubjects" AutoGenerateColumns="False" IsReadOnly="True"
+                  CanUserAddRows="False" SelectionMode="Single">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="50"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+                <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,8,0,8">
+            <Button Content="Add" Width="70" Margin="0,0,8,0" Click="BtnAdd_Click"/>
+            <Button Content="Edit" Width="70" Margin="0,0,8,0" Click="BtnEdit_Click"/>
+            <Button Content="Delete" Width="70" Click="BtnDelete_Click"/>
+        </StackPanel>
+
+        <Border Grid.Row="3" x:Name="PanelForm" Visibility="Collapsed" Background="#F0F4F8" CornerRadius="8" Padding="16">
+            <StackPanel>
+                <TextBlock x:Name="TxtFormTitle" Text="Add Subject" FontSize="14" FontWeight="Bold" Margin="0,0,0,8"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                    <TextBlock Text="Name:" Width="100" VerticalAlignment="Center"/>
+                    <TextBox x:Name="TxtName" Width="200" Height="28" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                    <TextBlock Text="Description:" Width="100" VerticalAlignment="Center"/>
+                    <TextBox x:Name="TxtDescription" Width="200" Height="28" Padding="4"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Save" Width="70" Margin="0,0,8,0" Click="BtnSave_Click" Background="#2D3A4A" Foreground="White"/>
+                    <Button Content="Cancel" Width="70" Click="BtnCancel_Click"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

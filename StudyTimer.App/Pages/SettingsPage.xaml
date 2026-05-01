@@ -1,0 +1,109 @@
+<Page x:Class="StudyTimer.App.Pages.SettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Settings">
+    <ScrollViewer Padding="20">
+        <StackPanel MaxWidth="500">
+            <TextBlock Text="Settings" FontSize="22" FontWeight="Bold" Margin="0,0,0,16"/>
+
+            <!-- Theme -->
+            <Border Background="#F8F9FA" CornerRadius="8" Padding="16" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Theme" FontSize="16" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="Mode:" Width="120" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="CboThemeMode" Width="140">
+                            <ComboBoxItem Content="Light" Tag="1"/>
+                            <ComboBoxItem Content="Dark" Tag="2"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="Variant:" Width="120" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="CboThemeVariant" Width="140">
+                            <ComboBoxItem Content="Sky Blue" Tag="1"/>
+                            <ComboBoxItem Content="Mint Green" Tag="2"/>
+                            <ComboBoxItem Content="Sunny Yellow" Tag="3"/>
+                            <ComboBoxItem Content="Candy Pink" Tag="4"/>
+                            <ComboBoxItem Content="Lavender" Tag="5"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <Button Content="Save Theme" Width="120" HorizontalAlignment="Left" Click="BtnSaveTheme_Click" Background="#2D3A4A" Foreground="White" Padding="8,4"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Accessibility -->
+            <Border Background="#F8F9FA" CornerRadius="8" Padding="16" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Accessibility" FontSize="16" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="Font Scale:" Width="120" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="CboFontScale" Width="140">
+                            <ComboBoxItem Content="Small (90%)" Tag="90"/>
+                            <ComboBoxItem Content="Normal (100%)" Tag="100"/>
+                            <ComboBoxItem Content="Large (115%)" Tag="115"/>
+                            <ComboBoxItem Content="Extra Large (130%)" Tag="130"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="Dyslexia Friendly:" Width="120" VerticalAlignment="Center"/>
+                        <CheckBox x:Name="ChkDyslexia" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="High Contrast:" Width="120" VerticalAlignment="Center"/>
+                        <CheckBox x:Name="ChkHighContrast" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button Content="Save Accessibility" Width="140" HorizontalAlignment="Left" Click="BtnSaveAccessibility_Click" Background="#2D3A4A" Foreground="White" Padding="8,4"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Focus Mode -->
+            <Border Background="#F8F9FA" CornerRadius="8" Padding="16" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Focus Mode" FontSize="16" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="Enable Focus Mode:" Width="160" VerticalAlignment="Center"/>
+                        <CheckBox x:Name="ChkFocusMode" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <Button Content="Save Focus Mode" Width="140" HorizontalAlignment="Left" Click="BtnSaveFocusMode_Click" Background="#2D3A4A" Foreground="White" Padding="8,4"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Language -->
+            <Border Background="#F8F9FA" CornerRadius="8" Padding="16" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Language" FontSize="16" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                        <TextBlock Text="Language:" Width="120" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="CboLanguage" Width="140">
+                            <ComboBoxItem Content="English" Tag="1"/>
+                            <ComboBoxItem Content="Spanish" Tag="2"/>
+                            <ComboBoxItem Content="Hindi" Tag="3"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <Button Content="Save Language" Width="130" HorizontalAlignment="Left" Click="BtnSaveLanguage_Click" Background="#2D3A4A" Foreground="White" Padding="8,4"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Backup -->
+            <Border Background="#F8F9FA" CornerRadius="8" Padding="16" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Backup / Restore" FontSize="16" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Export Backup" Margin="0,0,8,0" Padding="12,6" Click="BtnExportBackup_Click"/>
+                        <Button Content="Import Backup" Padding="12,6" Click="BtnImportBackup_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Security (Admin only) -->
+            <Border x:Name="PanelSecurity" Background="#F8F9FA" CornerRadius="8" Padding="16" Margin="0,0,0,12" Visibility="Collapsed">
+                <StackPanel>
+                    <TextBlock Text="Security Compliance" FontSize="16" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <Button Content="Run Compliance Check" Width="180" HorizontalAlignment="Left"
+                            Click="BtnCompliance_Click" Background="#2D3A4A" Foreground="White" Padding="8,4" Margin="0,0,0,8"/>
+                    <TextBlock x:Name="TxtCompliance" TextWrapping="Wrap" FontSize="12" Visibility="Collapsed"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

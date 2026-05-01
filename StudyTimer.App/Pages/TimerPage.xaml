@@ -1,0 +1,42 @@
+<Page x:Class="StudyTimer.App.Pages.TimerPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      Title="Timer">
+    <StackPanel Margin="40" HorizontalAlignment="Center">
+        <TextBlock Text="Study Timer" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
+            <TextBlock Text="Student:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <ComboBox x:Name="CboStudents" Width="160" DisplayMemberPath="Name"/>
+            <TextBlock Text="Date:" VerticalAlignment="Center" Margin="16,0,8,0"/>
+            <DatePicker x:Name="DpDate"/>
+            <Button Content="Start Session" Margin="16,0,0,0" Padding="12,4" Click="BtnStart_Click" Background="#2D3A4A" Foreground="White"/>
+        </StackPanel>
+
+        <TextBlock x:Name="TxtCountdown" Text="00:00:00" FontSize="72" FontWeight="Bold"
+                   HorizontalAlignment="Center" Foreground="#2D3A4A" Margin="0,0,0,16"/>
+
+        <ProgressBar x:Name="PbProgress" Height="16" Maximum="100" Value="0" Margin="0,0,0,16"/>
+
+        <Border Background="#F0F4F8" CornerRadius="8" Padding="16" Margin="0,0,0,16">
+            <StackPanel>
+                <TextBlock x:Name="TxtSubject" Text="No active session" FontSize="16" FontWeight="Bold"/>
+                <TextBlock x:Name="TxtActivity" Text="" FontSize="13" Foreground="#555" TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+
+        <TextBlock x:Name="TxtFocusMode" Text="🔒 Focus Mode Active" FontSize="14" Foreground="#E74C3C"
+                   HorizontalAlignment="Center" Visibility="Collapsed" Margin="0,0,0,12"/>
+
+        <Border x:Name="PanelDayCompleted" Background="#D5F5E3" CornerRadius="8" Padding="16"
+                Visibility="Collapsed" Margin="0,0,0,16">
+            <TextBlock Text="🎉 Day Completed! Great work!" FontSize="18" FontWeight="Bold"
+                       Foreground="#27AE60" HorizontalAlignment="Center"/>
+        </Border>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button x:Name="BtnPauseResume" Content="Pause" Width="100" Margin="0,0,16,0"
+                    Click="BtnPauseResume_Click" IsEnabled="False" Background="#2D3A4A" Foreground="White"/>
+        </StackPanel>
+    </StackPanel>
+</Page>
