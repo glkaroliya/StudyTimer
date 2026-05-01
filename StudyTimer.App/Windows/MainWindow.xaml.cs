@@ -35,12 +35,17 @@ public partial class MainWindow : Window
         }
     }
 
-    private void Navigate(string page)
+    private void CleanupTimerIfActive()
     {
         if (MainFrame.Content is TimerPage timerPage)
         {
             timerPage.StopTimer();
         }
+    }
+
+    private void Navigate(string page)
+    {
+        CleanupTimerIfActive();
 
         MainFrame.Navigate(page switch
         {
@@ -57,10 +62,7 @@ public partial class MainWindow : Window
 
     private void BtnSignOut_Click(object sender, RoutedEventArgs e)
     {
-        if (MainFrame.Content is TimerPage timerPage)
-        {
-            timerPage.StopTimer();
-        }
+        CleanupTimerIfActive();
         ServiceLocator.CurrentSession = null;
         // Prevent auto-shutdown when last window closes during re-login flow
         Application.Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;

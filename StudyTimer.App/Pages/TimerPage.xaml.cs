@@ -120,5 +120,8 @@ public partial class TimerPage : Page
             _timer.Stop();
             _timer = null;
         }
+        _state = null;
+        _isPaused = false;
+        _totalSlotSeconds = 0;
     }
 }
