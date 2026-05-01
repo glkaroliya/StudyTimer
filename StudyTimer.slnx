@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="StudyTimer.Core/StudyTimer.Core.csproj" />
+  <Project Path="StudyTimer.Tests/StudyTimer.Tests.csproj" />
+</Solution>
