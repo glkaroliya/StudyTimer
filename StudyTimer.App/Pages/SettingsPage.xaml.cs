@@ -73,7 +73,7 @@ public partial class SettingsPage : Page
     private void BtnSaveTheme_Click(object sender, RoutedEventArgs e)
     {
         if (_studentId <= 0) { MessageBox.Show("No student selected."); return; }
-        var mode = (ThemeMode)(CboThemeMode.SelectedIndex + 1);
+        var mode = (StudyTimer.Core.Models.ThemeMode)(CboThemeMode.SelectedIndex + 1);
         var variant = (ThemeVariant)(CboThemeVariant.SelectedIndex + 1);
         try
         {
