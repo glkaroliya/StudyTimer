@@ -20,7 +20,7 @@ The solution currently contains:
 
 - `StudyTimer.Core` - production domain/services library
 - `StudyTimer.Tests` - xUnit test project
-- `StudyTimer.App` - WPF desktop executable (`net8.0-windows`)
+- `StudyTimer.App` - WPF desktop executable (`net10.0-windows`)
 - `StudyTimer.slnx` - solution file
 
 ---
@@ -29,7 +29,7 @@ The solution currently contains:
 
 ### Required software
 
-- **.NET SDK 8.0**
+- **.NET SDK 10.0**
 - **Git**
 - **Windows 10/11** (for running the WPF app and creating installers)
 - **Visual Studio 2022** (recommended) with:
@@ -76,7 +76,7 @@ Expected result:
 - Build succeeds
 - All tests pass
 
-> Note: `StudyTimer.App` targets `net8.0-windows` and includes `EnableWindowsTargeting=true` for compatibility with non-Windows build environments (such as Linux CI).
+> Note: `StudyTimer.App` targets `net10.0-windows` and includes `EnableWindowsTargeting=true` for compatibility with non-Windows build environments (such as Linux CI).
 
 ---
 
@@ -219,7 +219,7 @@ Suggested release artifacts:
 
 ### Build fails for `StudyTimer.App` on non-Windows machine
 
-- Ensure .NET SDK 8 is installed
+- Ensure .NET SDK 10 is installed
 - Ensure the project still has `EnableWindowsTargeting=true`
 - Run `dotnet restore` before `dotnet build`
 
